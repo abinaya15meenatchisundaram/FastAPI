@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Response , status, HTTPException, Depends
 from fastapi.params import Body 
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from random import randrange 
 import psycopg
 from psycopg.rows import dict_row
@@ -49,14 +49,14 @@ def root():
     return {"message": "Welcome to my API!!"}
 
 
-@app.get("/posts")
+@app.get("/posts",response_model =List[schemas.Post])
 def get_post(db: Session = Depends(get_db)):
     #cursor.execute("""SELECT * FROM posts""")
     #posts = cursor.fetchall()
     posts = db.query(models.Post).all()
     return{"Data": posts}
 
-@app.post("/posts", status_code=status.HTTP_201_CREATED)
+@app.post("/posts", status_code=status.HTTP_201_CREATED, response_model =schemas.Post)
 def creatpost(post : schemas.PostCreate, db: Session = Depends(get_db)):
     #cursor.execute("""INSERT INTO posts (title,content,published) VALUES(%s,%s,%s) RETURNING * """,(post.title,post.content,post.published))
     #new_post=cursor.fetchone() # Returns the current returned values
@@ -69,7 +69,7 @@ def creatpost(post : schemas.PostCreate, db: Session = Depends(get_db)):
     return {"data": new_post} #return to user
     
 
-@app.get("/posts/{id}")
+@app.get("/posts/{id}", response_model =schemas.Post)
 def get_post(id: int, response: Response, db: Session = Depends(get_db)):
     #cursor.execute("""SELECT * FROM posts WHERE id = %s """,(str(id),)) 
     #post = cursor.fetchone()
@@ -103,7 +103,7 @@ def delete_post(id : int,db: Session = Depends(get_db)):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.put("/posts/{id}")
+@app.put("/posts/{id}", response_model =schemas.Post)
 def update_post(id: int,updated_post: schemas.PostCreate,db: Session = Depends(get_db)):
     #cursor.execute("""UPDATE posts SET title = %s, content = %s, published = %s WHERE id = %s RETURNING * """,(post.title,post.content,post.published,str(id)))
     #updated_post= cursor.fetchone()
