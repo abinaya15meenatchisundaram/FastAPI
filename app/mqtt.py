@@ -7,7 +7,7 @@ app = FastAPI()
 broker = "test.mosquitto.org"
 port = 1883
 topic = "fastapi/test"
-
+           
 # Initialize MQTT client
 client = mqtt.Client()
 client.connect(broker, port, 60)
